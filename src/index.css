@@ -11,3 +11,67 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.navbar {
+  background: linear-gradient(
+    to right,
+    rgb(5, 51, 21),
+    rgb(26, 165, 119),
+    rgb(8, 146, 61)
+  );
+}
+
+.home-paper {
+  background: linear-gradient(
+    to right,
+    rgb(77, 110, 89),
+    rgb(145, 153, 150),
+    rgb(41, 66, 51)
+  );
+  color: rgb(3, 10, 6) !important;
+}
+
+.file-paper {
+  background: linear-gradient(
+    to right,
+    rgb(187, 204, 190),
+    rgb(208, 221, 217),
+    rgb(230, 235, 232)
+  );
+  color: red;
+}
+
+.steps-to-find {
+  color: red !important;
+  margin: "0" !important;
+}
+
+.find-button {
+  color: white !important;
+  font-weight: bold;
+}
+
+.download-button {
+  color: white !important;
+}
+
+.primary-backgroud {
+  background: linear-gradient(
+    to right,
+    rgb(5, 51, 21),
+    rgb(26, 165, 119),
+    rgb(8, 146, 61)
+  );
+}
+
+.MuiListItem-gutters {
+  padding-left: 0;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.MuiList-padding {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
