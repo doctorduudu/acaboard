@@ -47,7 +47,8 @@ class StudentRegisterForm extends Form {
       chooseFile: ""
     },
     errors: {},
-    file: {}
+    file: {},
+    uploadDone: 0
   };
 
   schema = {
@@ -79,6 +80,7 @@ class StudentRegisterForm extends Form {
     newFile.category = data.category;
     newFile.subject = data.subject;
     newFile.file = file;
+    newFile.uploadDate = Date.now();
 
     // console.log("Submitted");
     // console.log("files", this.state.file);
@@ -91,9 +93,20 @@ class StudentRegisterForm extends Form {
     const task = storageRef.put(newFile.file);
 
     // Watch the state changes
-    task.on("state_changed", function error(error) {
-      console.log(error.task);
+    task.on("state_changed", function(snapshot) {
+      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      let uploader = document.getElementById("uploader");
+      uploader.style.display = "block";
+      uploader.textContent = `upload progress: ${Math.round(progress)}%`;
+      if (progress >= 100) {
+        alert("successfully uploaded file");
+      }
+      // console.log("Upload is " + progress + "% done");
     });
+
+    // task.on("state_changed", function error(error) {
+    //   console.log(error.task);
+    // });
 
     firebase
       .firestore()
@@ -101,25 +114,30 @@ class StudentRegisterForm extends Form {
       .add({
         name: newFile.name,
         category: newFile.category,
-        subject: newFile.subject
+        subject: newFile.subject,
+        uploadDate: newFile.uploadDate
       })
       .then(function(docRef) {
         // console.log("Document written with ID: ", docRef.id);
         // alert("file successfully uploaded");
-        // this.setState({
-        //   data: {
-        //     fileName: "",
-        //     category: "",
-        //     subject: "",
-        //     acaboardCode: "",
-        //     chooseFile: ""
-        //   }
-        // });
+        // this.setState({ uploadDone: true });
       })
       .catch(function(error) {
         // console.log("Error adding document: ", error);
         alert("error uploading file");
       });
+
+    if (this.state.uploadDone === true) {
+      this.setState({
+        data: {
+          fileName: "",
+          category: "",
+          subject: "",
+          acaboardCode: "",
+          chooseFile: ""
+        }
+      });
+    }
   };
 
   categories = getCategories();
@@ -155,6 +173,9 @@ class StudentRegisterForm extends Form {
               Upload File
             </Typography>
           </Grid>
+          {/* {this.state.uploadProgress && ( */}
+          <div id="uploader" style={{ display: "none" }}></div>
+
           <form className={classes.form} onSubmit={this.handleSubmit}>
             {this.renderTextField("fileName", "File Name")}
             {this.renderSelect(

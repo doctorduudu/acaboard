@@ -8,23 +8,14 @@ import { getFiles } from "../../getFiles";
 
 class HomeFilesInit extends Component {
   state = {
-    results: [],
-    loading: true
+    results: []
   };
 
   componentDidMount() {
     const results = getFiles();
-    this.setState({ results, loading: false });
+    this.setState({ results });
     console.log(this.state.results);
-    this.set();
   }
-
-  set = () => {
-    setTimeout(() => {
-      console.log("hello");
-      this.setState({ loading: !this.state.loading });
-    }, 3000);
-  };
 
   handleDownload = fileName => {
     const storageRef = firebase.storage().ref(`files/${fileName}`);
@@ -50,12 +41,10 @@ class HomeFilesInit extends Component {
   };
 
   render() {
-    const { results, loading } = this.state;
+    const { results } = this.state;
     console.log(this.state.results);
 
-    return !loading ? (
-      <div>loading...</div>
-    ) : (
+    return (
       <div style={{ marginTop: 10 }}>
         {results.map(result => (
           <Paper

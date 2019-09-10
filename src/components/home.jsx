@@ -16,7 +16,7 @@ import Divider from "@material-ui/core/Divider";
 import { getCategories } from "../utils/getCategories";
 import { getSubjects } from "../utils/getSubjects";
 import { getSubjectsList } from "../utils/getSubjectsList";
-import HomeFilesInit from "./common/homeFilesInit";
+// import HomeFilesInit from "./common/homeFilesInit";
 import firebase from "firebase";
 import { getFiles } from "../getFiles";
 
@@ -37,126 +37,95 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-// class Home extends Component {
-//   state = {
-//     category: "",
-//     subject: "",
-//     results: []
-//   };
-
-//   async componentDidMount() {
-//     const results = await getFiles();
-//     this.setState({ results });
-//   }
-
-//   render() {
-//     console.log(this.state.results);
-//     return (
-//       <React.Fragment>
-//         {this.state.results.map(result => (
-//           <Paper
-//             key={result.name}
-//             className="file-paper"
-//             style={{
-//               width: "80%",
-//               margin: "auto",
-//               marginBottom: "10px"
-//             }}
-//           >
-//             <Typography
-//               variant="h5"
-//               component="h3"
-//               style={{
-//                 padding: "5px",
-//                 fontSize: "15px",
-//                 fontWeight: 600
-//               }}
-//             >
-//               {result.name}
-//             </Typography>
-//             <div style={{ display: "flex", justifyContent: "space-between" }}>
-//               <Typography
-//                 variant="h5"
-//                 component="h3"
-//                 style={{
-//                   padding: "5px",
-//                   fontSize: "12px"
-//                 }}
-//               >
-//                 {result.category}
-//               </Typography>
-//               <Typography
-//                 variant="h5"
-//                 component="h3"
-//                 style={{
-//                   padding: "5px",
-//                   fontSize: "12px"
-//                 }}
-//               >
-//                 {result.subject}
-//               </Typography>
-//               <Button
-//                 size="small"
-//                 color="primary"
-//                 className="download-button primary-backgroud"
-//               >
-//                 <CloudDownloadIcon />
-//               </Button>
-//             </div>
-//           </Paper>
-//         ))}
-//       </React.Fragment>
-//     );
-//   }
-// }
-
-// export default Home;
-
 const Home = () => {
   const classes = useStyles();
   const [values, setValues] = React.useState({
     category: "",
     subject: ""
   });
-  const [results, setResults] = React.useState([]);
+  const [results, setResults] = React.useState(getFiles);
   const [changed, setChanged] = React.useState(false);
+  const [noFIleFound, setNoFileFound] = React.useState(false);
 
   const handleChange = prop => event => {
     setValues({ ...values, [prop]: event.target.value });
   };
 
+  let contentReloader = setTimeout(function() {
+    setChanged(!changed);
+  }, 1000);
+  if (results.length !== 0 || noFIleFound) {
+    clearTimeout(contentReloader);
+  }
+
   const handleFindFile = event => {
     event.preventDefault();
+    setResults([]);
 
     const category = values.category;
     const subject = values.subject;
 
-    if (category === "" && subject === "") {
-      alert("Please Select a Category, Subject or Both");
-      return;
-    }
-
     const docRef = firebase.firestore().collection("files");
     let resultsInit = [];
 
-    docRef
-      .where("category", "==", category)
-      .get()
-      .then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-          // doc.data() is never undefined for query doc snapshots
-          resultsInit.push(doc.data());
+    if (category === "" && subject === "") {
+      alert("Please Select a Category, Subject or Both");
+      return;
+    } else if (category !== "" && subject === "") {
+      docRef
+        .where("category", "==", category)
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            resultsInit.push(doc.data());
+          });
         });
-      });
+    } else if (category === "" && subject !== "") {
+      docRef
+        .where("subject", "==", subject)
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            resultsInit.push(doc.data());
+          });
+        });
+    } else {
+      docRef
+        .where("category", "==", category)
+        .where("subject", "==", subject)
+        .get()
+        .then(function(querySnapshot) {
+          querySnapshot.forEach(function(doc) {
+            // doc.data() is never undefined for query doc snapshots
+            resultsInit.push(doc.data());
+          });
+        });
+    }
 
     setResults(resultsInit);
+
+    setChanged(!changed);
+    const fileShower = document.getElementById("file-shower");
+    viewFiles();
+    console.log(fileShower);
 
     console.log("category:", category, "subject:", subject);
     console.log("searching for file now");
   };
+  console.log("results", results);
 
   function viewFiles() {
     setChanged(!changed);
+  }
+
+  function handleDownload(fileName) {
+    const storageRef = firebase.storage().ref(`files/${fileName}`);
+
+    storageRef.getDownloadURL().then(function(url) {
+      window.location.href = url;
+    });
   }
 
   const categories = getCategories();
@@ -218,7 +187,6 @@ const Home = () => {
           </Grid>
         </Paper>
       </div>
-
       <div style={{ margin: "auto", marginBottom: "15px" }}>
         <form>
           <Grid
@@ -284,7 +252,69 @@ const Home = () => {
         </form>
       </div>
       <Divider />
-      <HomeFilesInit />
+      <div style={{ marginTop: 10 }}>
+        {noFIleFound ? (
+          <div style={{ textAlign: "center", marginTop: "15px" }}>
+            <div style={{ display: "inline-block" }}>
+              Sorry No File Matched Your Search
+            </div>
+          </div>
+        ) : (
+          results.map(result => (
+            <Paper
+              key={result.name}
+              className="file-paper"
+              style={{
+                width: "80%",
+                margin: "auto",
+                marginBottom: "10px"
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h3"
+                style={{
+                  padding: "5px",
+                  fontSize: "15px",
+                  fontWeight: 600
+                }}
+              >
+                {result.name}
+              </Typography>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <Typography
+                  variant="h5"
+                  component="h3"
+                  style={{
+                    padding: "5px",
+                    fontSize: "12px"
+                  }}
+                >
+                  {result.category}
+                </Typography>
+                <Typography
+                  variant="h5"
+                  component="h3"
+                  style={{
+                    padding: "5px",
+                    fontSize: "12px"
+                  }}
+                >
+                  {result.subject}
+                </Typography>
+                <Button
+                  size="small"
+                  color="primary"
+                  className="download-button primary-backgroud"
+                  onClick={() => handleDownload(result.name)}
+                >
+                  <CloudDownloadIcon />
+                </Button>
+              </div>
+            </Paper>
+          ))
+        )}
+      </div>
     </React.Fragment>
   );
 };

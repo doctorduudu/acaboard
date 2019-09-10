@@ -1,6 +1,22 @@
 export function getSubjectsList() {
   return [
     {
+      name: "Anatomy",
+      id: "anatomy"
+    },
+    {
+      name: "Embryology",
+      id: "embryology"
+    },
+    {
+      name: "Biochemistry",
+      id: "biochemistry"
+    },
+    {
+      name: "Physiology",
+      id: "physiology"
+    },
+    {
       name: "Pathology",
       id: "pathology"
     },
@@ -47,6 +63,10 @@ export function getSubjectsList() {
     {
       name: "Sociology",
       id: "sociology"
+    },
+    {
+      name: "Dietetics",
+      id: "dietetics"
     }
   ];
 }

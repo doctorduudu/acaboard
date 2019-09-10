@@ -34,12 +34,11 @@ export default function ButtonAppBar() {
             <MenuIcon />
           </IconButton> */}
           <Typography
-            // component={Link}
-            // to="/"
+            component={Link}
+            to="/"
             id="navbar-brand"
             className={classes.title}
             variant="h5"
-            noWrap
             style={{
               textDecoration: "none",
               color: "white",
@@ -49,9 +48,9 @@ export default function ButtonAppBar() {
           >
             UGMSA ACABOARD
           </Typography>
-          {/* <Button color="inherit" component={Link} to="/upload">
+          <Button color="inherit" component={Link} to="/upload">
             Upload
-          </Button> */}
+          </Button>
         </Toolbar>
       </AppBar>
     </div>
